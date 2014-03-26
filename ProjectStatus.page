@@ -1,0 +1,646 @@
+<apex:page controller="BLDRNR_ProjectStatusController" showHeader="false" standardStylesheets="false" title="Tech Team Project Status">
+	
+	<!-- INCUDE JQUERY -->
+	<apex:includescript value="{!URLFOR($Resource.jQuery, 'jQuery/jquery-1.8.3.min.js')}" />
+
+	<!-- INCUDE TWITTER BOOTSTRAP -->
+	<apex:includeScript value="{!URLFOR($Resource.bootstrap, 'js/bootstrap.min.js')}" />   
+	<apex:styleSheet value="{!URLFOR($Resource.bootstrap, 'css/bootstrap.min.css')}" />
+ 
+	<!-- 	
+	<apex:styleSheet value="{!URLFOR($Resource.lightbox, 'fancyapps-fancyBox-3a66a9b/source/jquery.fancybox.css?v=2.0.6')}" />
+	<apex:includeScript value="{!URLFOR($Resource.lightbox, 'fancyapps-fancyBox-3a66a9b/source/jquery.fancybox.pack.js?v=2.0.6')}" />   
+
+	<apex:includeScript value="{!URLFOR($Resource.validate, 'jquery.validate.min.js')}" />   
+ 	-->
+ 	
+ 	<head><title>Tech Team Project Status</title></head>
+	<style>
+	a:link {text-decoration:none;}
+	a:visited {text-decoration:none;}
+	a:hover {text-decoration:none;}
+	a:active {text-decoration:none;}
+	tr.dataRow .prettyLink {color:#1797C0;}
+	#pageHeader
+	{
+		margin-bottom:2px;
+	}
+	.parentContainer
+	{
+		width:440px;
+		padding-right:12px;
+	}
+	tr .popover-content 
+	{
+		font-size:16px;
+	}	
+	tr.dataRow
+	{
+		font-family:Arial,Arial,Helvetica,sans-serif;
+		font-size:14px;
+		color:#666666;
+	}
+	tr.dataRow td {
+		vertical-align:middle;
+	}
+	tr.dataRow .entryTitle
+	{
+		font-size:18px;
+		color:#1797C0;
+		display:table-cell;
+	}
+	tr.level0 .entryTitle 
+	{ 
+		font-size:20px; 
+		height:28px; 
+	}
+	tr.dataRow .entryTitle a
+	{
+		color:#1797C0;
+		padding-right:10px;
+	}	
+	tr.dataRow .entryDescription
+	{
+		padding:0px 0px 5px 2px;
+		font-size:14px;
+		color:#666666;
+	}
+	tr.dataRow .feedPhoto{
+		vertical-align:middle;
+		height:70px;
+		width:60px;
+	}
+	tr.dataRow .feedBody
+	{
+		padding:5px 0px 8px 0px;
+		font-size:13px;
+		color:#666666;
+	}
+	tr.dataRow .feedDate
+	{
+		font-size:10px;
+		color:#7D7D84;
+	}
+	tr.dataRow .feedUsername a
+	{
+		font-size:14px;
+		color:#999999;
+	}
+	tr.dataRow td.valContainer a
+	{
+		color:#666666;
+	}
+	tr.dataRow td.valContainer
+	{
+		text-align: center;
+		font-size:18px;
+		line-height: 20px;
+	}
+	tr.dataRow .feedBody a,
+	tr.dataRow .feedDate a {
+		cursor: pointer;
+	}
+	tr.dataRow .chatterContainer {
+		min-width:260px;
+	}
+
+	.progress .bar-plain {
+		background-color:#cccccc;background-image:-moz-linear-gradient(top,#dddddd,#aaaaaa);background-image:-webkit-gradient(linear,0 0,0 100%,from(#dddddd),to(#aaaaaa));background-image:-webkit-linear-gradient(top,#dddddd,#aaaaaa);background-image:-o-linear-gradient(top,#dddddd,#aaaaaa);background-image:linear-gradient(to bottom,#dddddd,#aaaaaa);background-repeat:repeat-x;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffee5f5b',endColorstr='#ffc43c35',GradientType=0)}
+	}
+
+	tr.level0 td.titleContainer { padding-left:10px; font-size:110%; }
+	tr.level1 td.titleContainer { padding-left:36px; }
+	tr.level2 td.titleContainer {  padding-left:62px; }
+	tr.level3 td.titleContainer { padding-left:88px; }
+	tr.level4 td.titleContainer {  padding-left:114px; }
+	
+	tr.level1, tr.level2, tr.level3 { 
+		background-color:white;
+		width:100%;
+	}	
+	.valContainer img {
+		padding:0 8px 4px 5px;
+	}
+	#chatterBox {
+		width:600px;
+		height:500px;
+	}
+	#chatterBox iframe {
+		width:100%;
+		height:400px;
+	}
+	.sfPageBlock {
+		background-color: #F8F8F8;
+		background-image: none;
+		background-position: 0% 100%;
+		background-repeat: no-repeat;
+		border-bottom-color: #EAEAEA;
+		border-bottom-left-radius: 4px;
+		border-bottom-right-radius: 4px;
+		border-bottom-style: solid;
+		border-bottom-width: 1px;
+		border-left-color: #EAEAEA;
+		border-left-style: solid;
+		border-left-width: 1px;
+		border-right-color: #EAEAEA;
+		border-right-style: solid;
+		border-right-width: 1px;
+		border-top-color: #222;
+		border-top-left-radius: 4px;
+		border-top-right-radius: 4px;
+		border-top-style: solid;
+		border-top-width: 3px;
+		clear: both;
+		color: #222;
+		display: block;
+		font-family: Arial, Helvetica, sans-serif;
+		font-size: 12px;
+		line-height: 20px;
+		margin: 0 0 10px 0;
+		padding: 0;
+		width: 100%;
+	}
+
+	.dataRow .editOnly { 
+		display:none; 
+	}
+
+	.dataRow .dateInput .dateFormat { 
+		display:none; 
+	}
+
+	.dataRow span.label {
+		font-size: 11px;
+	}
+
+	/* be responsive to narrow widths by hiding columns */
+	@media (max-width: 1150px) {
+		tr.dataRow .chatterContainer {
+			min-width:180px;
+		}
+		.input-xlarge { width:170px; }
+		.input-large { width:145px; }
+		.input-medium { width:120px; }
+	}
+	@media (max-width: 979px) {
+		.chatterContainer, .feedPhoto {
+	  		display: none;
+	  	}
+	}
+	@media (max-width: 719px) {
+		.taskContainer {
+			display: none;
+		}
+	}
+	</style>
+
+	<script type="text/javascript" >
+		var j$ = jQuery.noConflict();
+		var chartData;
+		var visiblePopover;
+		var rowId;
+
+		j$(document).ready(function() {
+
+			// show the rows based on the filter selection
+			j$("#entryFilter").val('{!filter}');
+			showRowsForFilter( j$("#entryFilter").val() );
+
+			// set project status icons for each row
+			j$("[data-input='Project_Status__c']").each(function() {
+				var row = j$(this).closest(".dataRow");
+				var status = j$(this).data('value');
+				setStatusIcon(row, status);
+			});
+
+			// respond to change in filter
+			j$("#entryFilter").change(function() {
+				showRowsForFilter( j$(this).val() );
+			});
+
+			// set the iframe target in the modal window
+			j$('[data-target="#chatterBox"]').click(function(e) {
+				j$('#chatterBox .modal-iframe').attr('src', j$(this).attr('data-url'));
+				j$('#chatterBox h4').text('Chatter Feed: ' + j$(this).closest('.dataRow').data('name'));
+			});
+
+			// open the row for editing
+			j$(".dataRow .editButton").click(function() {
+				var row = j$(this).closest(".dataRow");
+				j$(".viewOnly", row).hide();
+				j$(".editOnly", row).show();
+				j$("[data-input='name'] input", row).focus();
+
+				// fill each data input in the row with the data for this field
+				j$('[data-input]:visible', row).each(function() {
+					var target = (j$(this).is("input, textarea, select")) ? this : j$("input, textarea, select", this).first();
+					j$(target).val( j$(this).data("value") );
+				});
+
+				// set focus to the editable name control
+			});
+				
+     		// WAS NOT WORKING, SO I DISABLED
+     		//j$('#projForm').validate();
+
+ 			j$(".dataRow .saveButton").click(function() {
+
+				var row = j$(this).closest(".dataRow");
+				rowId = j$(row).data('id');
+				j$('a.btn', row).addClass('disabled');
+				j$(".alert-error", row).hide();
+
+				// create a new sObject data structure with the Id set to this object
+				var obj = new Object();
+				obj["Id"] = rowId;
+
+				// get each value from the form input controls that are visible and put them into the object
+				j$('[data-input]:visible', row).each(function() {
+					var ctl = (j$(this).is('input, textarea, select')) ? this : j$('input, textarea, select', this).first();
+					if (ctl) {
+						var str = j$(ctl).val().trim();
+
+						// convert numbers and dates when the controls have class "number" or "date" (also strip commas and $ and fix %)
+						var val;
+						if ( j$(ctl).is(".number") || j$(this).is(".number") ) {
+							var pct = str.indexOf('%');
+							if (isNaN(val)) {
+								val = '[invalid number]';
+							} else {
+								val = parseFloat( str.replace(/[$,%]/g, "") );
+								if (pct > 0)
+									val = val / 100;
+							}
+
+						} else if ( j$(ctl).is(".date") || j$(this).is(".date") ) {
+							if (str != '') {
+								var dt = new Date(Date.parse(str));
+								if (isNaN(dt.getFullYear())) 
+									val = '[invalid date]';
+								else
+									val = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
+							}
+
+							if (str != j$(this).data("value")) {
+								j$('span.label', j$(this).parent()).hide();
+							}
+						} else {
+							val = str;
+						}
+
+						// set the value to save in the object
+						obj[ j$(this).attr('data-input') ] = (val===undefined || val == "") ? null : val;
+					}
+				});
+
+				// save using JS remoting
+				console.log('SAVING: \n' + JSON.stringify(obj));
+				Visualforce.remoting.Manager.invokeAction(
+	            '{!$RemoteAction.BLDRNR_ProjectStatusController.saveProject}', JSON.stringify(obj),
+	            function(result, event){
+						var row = j$(".dataRow[data-id='" + rowId + "']");
+						j$('a.btn', row).removeClass('disabled');
+
+	               if (event.status) {
+
+							// update fields on page
+							j$('[data-input]:visible', row).each(function() {
+								var ctl = (j$(this).is("input, textarea, select")) ? this : j$("input, textarea, select", this).first();
+								var str = j$(ctl).val();
+								var fldName = j$(this).attr('data-input');
+								var target = j$("[data-field='" + fldName + "']", row);
+								if (!j$(target).is("span"))
+									target = j$("span", target).first();
+
+								// set the data-value attribute
+								j$(this).data("value", str);
+
+								// set the icon and popup text
+								if ( fldName == 'Project_Status__c' ) {									
+									setStatusIcon( row, str );
+								
+								// or the date
+								} else if ( j$(ctl).is(".date") ) {
+									var dt = new Date(Date.parse(str));
+									var yr = (dt.getFullYear().toString());
+									if (str === '' || isNaN( yr )) {
+										j$(target).text(str);
+									} else {
+										var mn = ((dt.getMonth() < 9) ? '0' : '') + (dt.getMonth() + 1);
+										j$(target).text(mn + '/' + yr.substring(2,4));
+									}
+
+								// or just the text value - for name or description
+								} else {
+									j$(target).text(str);
+								}
+							});	
+
+							j$(".editOnly", row).hide();
+							j$(".viewOnly", row).show();
+
+	               } else {
+	                  var err = event.message + ((event.type === 'exception') ? ('\n' + event.where) : '');
+	                  //console.log(err);
+
+	                  var htm = '<div class="alert alert-error"><button type="button" class="close" data-dismiss="alert">&times;</button><b>Error:</b> ' + err + '</div>';
+	                  j$("td", row).first().append(htm);
+	               }
+	            }, 
+	            {escape: true}
+		      ); 
+
+			});
+
+			// cancel button
+			j$(".dataRow .cancelButton").click(function() {
+				var row = j$(this).closest(".dataRow");
+				j$(".editOnly", row).hide();
+				j$(".viewOnly", row).show();
+
+				j$(".alert-error", row).hide();
+			});
+
+			// set up popovers
+			j$("a[rel=popover]").popover({
+				trigger: ('ontouchstart' in document.documentElement) ? 'click' : 'hover'
+			});
+
+			// hide popover when another is clicked
+			j$("a[rel='popover']").click( function() {
+
+			  // check if the one clicked is now shown
+			  if (j$(this).data('popover').tip().hasClass('in')) {
+
+			    // if another was showing, hide it
+			    visiblePopover && visiblePopover.popover('hide');
+
+			    // then store reference to current popover
+			    visiblePopover = j$(this);
+
+			  } else { // if it was hidden, then nothing must be showing
+			    visiblePopover = '';
+			  }
+			});
+
+      });
+
+		function setStatusIcon(row, status) {
+			var target = j$("a[data-field='Project_Status__c']", row);
+			if (j$(target).data("content") != status) {
+				j$(target).attr("data-content", status);
+				j$(target).popover({
+					trigger: ('ontouchstart' in document.documentElement) ? 'click' : 'hover'
+				});
+
+				var icon = j$("i", target);
+				j$(icon).removeClass('icon-time icon-pause icon-play icon-ok icon-remove')
+				var iconClass = (
+					status == 'Planned' ? 'icon-time' : 
+					status == 'On Hold' ? 'icon-pause' : 
+					status == 'In Progress' ? 'icon-play' : 
+					status == 'Completed' ? 'icon-ok' : 
+					status == 'Cancelled' ? 'icon-remove' : ''
+				);
+				j$(icon).addClass(iconClass);
+			}
+		}
+
+		function showRowsForFilter(cName) {
+			if (cName == 'All') {
+		   	j$('tr.dataRow').show(300);
+		   } else {
+		   	j$('tr.dataRow').hide();
+			   j$('tr[data-filter^="' + cName + '"],tr[data-filter*=";' + cName + ';"],tr[data-filter$=";' + cName + '"]').show(200);
+			}
+		}
+	</script>
+	
+ 	<!-- HEADER -->
+	<div style="margin:10px;">
+	<div id="pageHeader">
+		<table style="width:100%;">
+			<tr>
+				<td style="width:80px;">
+     				<img src="{!URLFOR($Resource.pricelist, 'logo.png')}" width="76px" height="50px" />
+     			</td>
+     			<td style="line-height:40px;padding:5px;">
+					<select id="entryFilter" name="entryFilter" style="width: 160px;">
+						<apex:repeat value="{!filterOptions}" var="opt">
+							<apex:outputPanel rendered="{!filter==opt.value}">
+								<option value="{!opt.value}" selected="selected">{!opt.label}</option>
+							</apex:outputPanel>
+							<apex:outputPanel rendered="{!filter!=opt.value}">
+								<option value="{!opt.value}">{!opt.label}</option>
+							</apex:outputPanel>
+						</apex:repeat>
+					</select>
+					<apex:outputText style="font-size:24px;padding-left:10px;" value="Tech Team Projects" />
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="sfPageBlock">
+		<apex:pageBlock id="pageBlock">
+			<form id="projForm">
+			<table class="table">
+				<thead class="columnHeader">
+					<th>
+						Project Name
+					</th>
+					<th style="text-align:center;">
+						Start
+					</th>
+					<th style="text-align:center;">
+						End
+					</th>
+					<th style="text-align:center;" class="taskContainer">
+						Status
+					</th>
+					<th colspan="2" class="chatterContainer">
+						Recent Chatter
+					</th>
+ 					<apex:outputPanel rendered="{!$ObjectType.TASKRAY__Project__c.updateable}">
+					<th style="min-width:56px; text-align:center;" >
+						Action
+					</th>
+					</apex:outputPanel>
+				</thead>
+				<tbody>
+				<apex:repeat value="{!allRows}" var="pr">
+					<tr class="dataRow level{!TEXT(pr.level)}" data-id="{!pr.project.Id}" data-name="{!pr.project.Name}" data-filter="{!pr.project.include_in_list__c}" >    
+						<td class="titleContainer" style="min-width:120px;">
+							<div class="editOnly" data-input="name" data-value="{!pr.project.name}" style="max-width:450px;">
+								<input type="text" class="input-xlarge required" />
+							</div>
+							<div class="editOnly" data-input="description__c" data-value="{!pr.project.description__c}" style="max-width:450px;">
+								<textarea class="input-xlarge" style="height:40px;"/>
+							</div>
+							<table class="viewOnly">
+								<tr >
+								<td style="border:0;padding-left:2px;width:16px;">
+									<apex:outputPanel layout="inline">
+										<a rel="popover" title="Project Status" style="padding:0;" data-placement="right" data-field="Project_Status__c" >
+											<i class="icon-play" ></i>
+										</a>
+									</apex:outputPanel>
+								</td>
+								<td style="border:0;padding:0; max-width:420px;" >
+									<div class="projectTitle" >
+										<a href="/apex/TASKRAY__trprojectboard?projectid={!pr.project.id}" target="_blank">
+											<span data-field="name" style="vertical-align: middle;">{!pr.project.name}</span>
+										</a>
+										<!-- <a href="{!URLFOR($Action.TASKRAY__Project__c.View, pr.project.id)}"><span data-field="name">{!pr.project.name}</span></a> -->
+
+										<apex:outputPanel layout="inline" rendered="{!pr.project.Project_Health__c == 'Yellow'}" >
+											<span class="label label-warning" style="vertical-align: middle;margin-left:5px;" >Caution</span>
+										</apex:outputPanel>										
+										<apex:outputPanel layout="inline" rendered="{!pr.project.Project_Health__c == 'Red'}" >
+											<span class="label label-important" style="vertical-align: middle;margin-left:5px;" >Concern</span>
+										</apex:outputPanel>										
+									</div>									
+									<div class="projectDescription" >
+										<span data-field="description__c" >{!pr.project.description__c}</span>
+									</div>
+								</td>
+							</tr></table>	
+						</td>
+						<td class="valContainer" style="min-width:80px;">
+							<div class="editOnly" data-input="TASKRAY__Project_Start__c" data-value="{!IF(ISNULL(pr.project.TASKRAY__Project_Start__c), NULL, TEXT(MONTH(pr.project.TASKRAY__Project_Start__c)) + '/' + TEXT(DAY(pr.project.TASKRAY__Project_Start__c)) + '/' + TEXT(YEAR(pr.project.TASKRAY__Project_Start__c)))}">
+								<input type="text" class="input-small date" />
+							</div>
+							<apex:outputPanel layout="inline" styleclass="viewOnly" >
+								<a rel="popover" title="Project Start" style="padding:0;" data-placement="bottom" data-html="true"
+									data-content="{!TEXT(ABS(pr.project.Days_to_Project_Start__c)) + IF(pr.project.Days_to_Project_Start__c >= 0, ' days from today', ' days overdue')}" >
+									<span style="vertical-align: middle;" data-field="TASKRAY__Project_Start__c">
+										<apex:outputText value="{0,date,MM/yy}" >
+											<apex:param value="{!pr.project.TASKRAY__Project_Start__c}" />
+										</apex:outputText>
+									</span>
+									<apex:outputPanel layout="inline" rendered="{!pr.project.Start_Date_Alert__c == 'Starts Soon'}" >
+										<span class="label label-warning" style="vertical-align: middle;" >Starts Soon</span>
+									</apex:outputPanel>
+									<apex:outputPanel layout="inline" rendered="{!pr.project.Start_Date_Alert__c == 'Delayed'}">
+										<span class="label label-important" style="vertical-align: middle;" >Delayed</span>
+									</apex:outputPanel>
+								</a>
+							</apex:outputPanel>
+						</td>
+						<td class="valContainer" style="min-width:80px;">
+							<div class="editOnly" data-input="TASKRAY__Project_End__c" data-value="{!IF(ISNULL(pr.project.TASKRAY__Project_End__c), NULL, TEXT(MONTH(pr.project.TASKRAY__Project_End__c)) + '/' + TEXT(DAY(pr.project.TASKRAY__Project_End__c)) + '/' + TEXT(YEAR(pr.project.TASKRAY__Project_End__c)))}">
+								<input type="text" class="input-small date" />
+							</div>
+							<apex:outputPanel layout="inline" styleclass="viewOnly">
+								<a rel="popover" title="Project End" style="padding:0;" data-placement="bottom"  data-html="true"
+									data-content="{!TEXT(ABS(pr.project.Days_to_Project_End__c)) + IF(pr.project.Days_to_Project_End__c >= 0, ' days from today', ' days overdue')}" >
+									<span style="vertical-align: middle;" data-field="TASKRAY__Project_End__c" >
+										<apex:outputText value="{0,date,MM/yy}" >
+											<apex:param value="{!pr.project.TASKRAY__Project_End__c}" />
+										</apex:outputText>
+									</span>
+									<apex:outputPanel layout="inline" rendered="{!pr.project.End_Date_Alert__c == 'Due Soon'}" >
+										<span class="label label-warning" style="vertical-align: middle;" >Due Soon</span>
+									</apex:outputPanel>
+									<apex:outputPanel layout="inline" rendered="{!pr.project.End_Date_Alert__c == 'Overdue'}">
+										<span class="label label-important" style="vertical-align: middle;" >Overdue</span>
+									</apex:outputPanel>
+								</a>
+							</apex:outputPanel>
+						</td>
+						<td class="taskContainer" style="min-width:150px;text-align:center;vertical-align:middle;">
+							<div class="editOnly" style="text-align:left;">
+								<div data-input="Project_Status__c" data-value="{!pr.project.Project_Status__c}" >
+									<select size="1" class="input-medium" style="margin-bottom:10px;height:28px;">
+										<option value="">--None--</option>
+										<option value="Planned">Planned</option>
+										<option value="On Hold">On Hold</option>
+										<option value="In Progress">In Progress</option>
+										<option value="Completed">Completed</option>
+										<option value="Cancelled">Cancelled</option>
+									</select>
+								</div>
+							</div>
+							<apex:outputPanel layout="block" rendered="{!pr.hasTasks}" styleclass="progress viewOnly" style="width:94%;text-align:center;margin-bottom:0;">
+								<a rel="popover" href="/apex/TASKRAY__trprojectboard?projectid={!pr.project.id}" target="_blank" title="Task Status" 
+									data-placement="left" data-html="true"
+									data-content="{!'<b>' + TEXT(NULLVALUE(pr.project.Total_Tasks_in_Holding__c, 0)) + '</b> task' + IF(pr.project.Total_Tasks_in_Holding__c == 1, '', 's') + ' holding in backlog<br /><b>' + TEXT(NULLVALUE(pr.project.Total_Tasks_Prioritized__c, 0)) + '</b> task' + IF(pr.project.Total_Tasks_Prioritized__c == 1, '', 's') + ' prioritized<br /><b>' + TEXT(NULLVALUE(pr.project.Total_Tasks_Started__c, 0)) + '</b> task' + IF(pr.project.Total_Tasks_Started__c == 1, '', 's') + ' started<br /><b>' + TEXT(NULLVALUE(pr.project.Total_Tasks_Completed__c, 0)) + '</b> task' + IF(pr.project.Total_Tasks_Completed__c == 1, '', 's') + ' completed'}" >
+									<apex:outputPanel layout="block" rendered="{!pr.hasHolding}" 
+										style="width:{!(100 * pr.project.Total_Tasks_in_Holding__c / pr.project.Total_Tasks__c)}%;"
+										styleclass="bar bar-warning" >
+										<apex:outputField value="{!pr.project.Total_Tasks_in_Holding__c}" 
+											rendered="{!((pr.project.Total_Tasks_in_Holding__c / pr.project.Total_Tasks__c) >= 0.08)}" />
+									</apex:outputPanel>
+									<apex:outputPanel layout="block" rendered="{!pr.hasPrioritized}" 
+										style="width:{!(100 * pr.project.Total_Tasks_Prioritized__c / pr.project.Total_Tasks__c)}%;"
+										styleclass="bar bar-info" >
+										<apex:outputField value="{!pr.project.Total_Tasks_Prioritized__c}" 
+											rendered="{!((pr.project.Total_Tasks_Prioritized__c / pr.project.Total_Tasks__c) >= 0.08)}" />
+									</apex:outputPanel>
+									<apex:outputPanel layout="block" rendered="{!pr.hasStarted}" 
+										style="width:{!(100 * pr.project.Total_Tasks_Started__c / pr.project.Total_Tasks__c)}%;"
+										styleclass="bar bar-success" >
+										<apex:outputField value="{!pr.project.Total_Tasks_Started__c}" 
+											rendered="{!((pr.project.Total_Tasks_Started__c / pr.project.Total_Tasks__c) >= 0.08)}" />
+									</apex:outputPanel>
+									<apex:outputPanel layout="block" rendered="{!pr.hasCompleted}" 
+										style="width:{!(100 * pr.project.Total_Tasks_Completed__c / pr.project.Total_Tasks__c)}%;"
+										styleclass="bar bar-plain" >
+										<apex:outputField value="{!pr.project.Total_Tasks_Completed__c}" 
+											rendered="{!((pr.project.Total_Tasks_Completed__c / pr.project.Total_Tasks__c) >= 0.08)}" />
+									</apex:outputPanel>		
+								</a>
+							</apex:outputPanel>
+						</td>
+						<td class="feedPhoto" style="min-width:60px;">
+							<apex:image rendered="{!NOT(ISNULL(pr.postUser))}" url="{!URLFOR(pr.postUser.SmallPhotoUrl)}" />
+ 						</td>
+						<td class="chatterContainer">
+							<apex:outputPanel styleclass="feedUsername" rendered="{!NOT(ISNULL(pr.post))}">
+								<apex:outputLink value="{!baseURL + '/' + pr.post.createdBy.Id}">
+									{!pr.postUser.firstName}&nbsp;{!pr.postUser.LastName}	
+								</apex:outputLink>
+							</apex:outputPanel>
+							<div class="feedBody" style="max-width:450px;">
+								<a data-url="{!URLFOR('/apex/ChatterFeed?id='+pr.project.id)}" 
+									data-toggle="modal" data-target="#chatterBox" aria-hidden="true">
+
+									<apex:outputField rendered="{!NOT(ISNULL(pr.post))}" value="{!pr.post.body}" />
+									<apex:outputText rendered="{!ISNULL(pr.post)}" value="No Chatter Posts" />
+								</a>
+							</div>
+							<div class="feedDate">
+								<apex:outputPanel >
+									<apex:outputField value="{!pr.post.createdDate}" />
+									&nbsp;
+								</apex:outputPanel>
+								<a data-url="{!URLFOR('/apex/ChatterFeed?id='+pr.project.id)}" 
+									data-toggle="modal" data-target="#chatterBox" aria-hidden="true">View project feed</a>
+							</div>
+						</td>
+						<apex:outputPanel rendered="{!$ObjectType.TASKRAY__Project__c.updateable}">
+						<td style="text-align:center; min-width:56px;" >
+							<a class="btn btn-small editButton viewOnly" ><i class="icon-pencil"></i></a>
+							<div><a class="btn btn-small saveButton editOnly" ><i class="icon-ok"></i></a></div>
+							<div style="margin-top:5px;"><a class="btn btn-small cancelButton editOnly" ><i class="icon-remove"></i></a></div>
+						</td>
+						</apex:outputPanel>
+ 					</tr>				
+				</apex:repeat>
+				</tbody>
+			</table>
+			</form>
+
+			<div id="chatterBox" class="modal fade hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			  <div class="modal-header">
+			    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			    <h4>Chatter Feed</h4>
+			  </div>
+			  <div class="modal-body">
+					<iframe class="modal-iframe" frameborder="0" hspace="0" scrolling="auto"></iframe>
+			  </div>
+			</div>
+
+ 		</apex:pageBlock>
+		</div>
+	</div>
+</apex:page>

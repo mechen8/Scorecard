@@ -1,0 +1,5 @@
+<apex:page >
+	<flow:interview name="ConvertCaseToProject" finishLocation="{!URLFOR('/'+$CurrentPage.parameters.id)}">
+		<apex:param name="CaseID" value="{!$CurrentPage.parameters.id}" />
+	</flow:interview>
+</apex:page>

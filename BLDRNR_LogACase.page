@@ -1,0 +1,17 @@
+<apex:page controller="BLDRNR_LogACaseController">
+    <apex:sectionHeader title="Foundation Tech Team" subtitle="Submit a Request" />
+    <apex:form >
+        <apex:pageBlock >
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!submitCase}" value="Submit Request" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection >
+                <apex:inputField value="{!newCase.subject}" required="true" label="Subject"/>
+                <apex:inputField value="{!newCase.System__c}" required="true"/>
+                <apex:inputField value="{!newCase.priority}" required="true"/>
+                <apex:inputField value="{!newCase.Department__c}" required="true"/>
+                <apex:inputTextArea label="Description" value="{!newCase.description}" rows="25" cols="100" required="true"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

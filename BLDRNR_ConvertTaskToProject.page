@@ -1,0 +1,27 @@
+<apex:page controller="BLDRNR_TaskToProject">
+	<!-- <flow:interview name="ConvertTaskToProject" finishLocation="{!URLFOR('/'+$CurrentPage.parameters.id)}">
+		<apex:param name="taskID" value="{!$CurrentPage.parameters.id}" />
+	</flow:interview> -->
+	<apex:sectionHeader title="Salesforce.com Foundation Tech Team" subtitle="Convert '{!oldTask.name}' Task to Project" />
+	<apex:form >
+		<apex:pageBlock >
+		<apex:pageBlockButtons location="bottom">
+			<apex:commandButton action="{!saveProject}" value="Convert" />
+			<apex:commandButton action="{!cancel}" value="Cancel" />
+		</apex:pageBlockButtons>
+			<apex:pageBlockSection columns="1">
+				
+					<apex:inputField value="{!newProject.name}" style="width:400px;"/>
+					<apex:selectList value="{!newProject.TASKRAY__Project_Parent__c}" size="1">
+						<apex:selectOptions value="{!projectList}" />
+					</apex:selectList>
+					<apex:inputField value="{!newProject.Project_Status__c}" />
+					<apex:inputField value="{!newProject.Priority__c}" />
+					<apex:inputField value="{!newProject.TASKRAY__Project_Start__c}" />
+					<apex:inputField value="{!newProject.TASKRAY__Project_End__c}" />
+					<apex:inputField value="{!newProject.Description__c}" style="width:400px;"/>
+
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+	</apex:form>
+</apex:page>
